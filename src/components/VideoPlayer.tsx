@@ -3,6 +3,7 @@ import Hls from 'hls.js';
 import { X, Volume2, VolumeX, Maximize, Minimize, Play, Pause, AlertCircle } from 'lucide-react';
 import { Channel } from '@/lib/iptv';
 import { cn } from '@/lib/utils';
+import { useRecentlyWatched } from '@/hooks/useRecentlyWatched';
 
 interface VideoPlayerProps {
   channel: Channel;
@@ -18,6 +19,16 @@ export function VideoPlayer({ channel, onClose }: VideoPlayerProps) {
   const [error, setError] = useState<string | null>(null);
   const [showControls, setShowControls] = useState(true);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
+  const { addToRecentlyWatched } = useRecentlyWatched();
+  const hasTrackedRef = useRef(false);
+
+  // Track channel as recently watched
+  useEffect(() => {
+    if (!hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      addToRecentlyWatched(channel);
+    }
+  }, [channel, addToRecentlyWatched]);
 
   useEffect(() => {
     const video = videoRef.current;

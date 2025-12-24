@@ -47,6 +47,42 @@ export type Database = {
         }
         Relationships: []
       }
+      recently_watched: {
+        Row: {
+          channel_category: string | null
+          channel_country: string | null
+          channel_id: string
+          channel_logo: string | null
+          channel_name: string
+          channel_url: string
+          id: string
+          user_id: string
+          watched_at: string
+        }
+        Insert: {
+          channel_category?: string | null
+          channel_country?: string | null
+          channel_id: string
+          channel_logo?: string | null
+          channel_name: string
+          channel_url: string
+          id?: string
+          user_id: string
+          watched_at?: string
+        }
+        Update: {
+          channel_category?: string | null
+          channel_country?: string | null
+          channel_id?: string
+          channel_logo?: string | null
+          channel_name?: string
+          channel_url?: string
+          id?: string
+          user_id?: string
+          watched_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

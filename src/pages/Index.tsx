@@ -3,25 +3,36 @@ import { useChannels } from '@/hooks/useChannels';
 import { ChannelCard } from '@/components/ChannelCard';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { LoadingScreen } from '@/components/LoadingScreen';
+import { RecentlyWatched } from '@/components/RecentlyWatched';
+import { TVGuide } from '@/components/TVGuide';
+import { CategoryFilter } from '@/components/CategoryFilter';
 import { Channel } from '@/lib/iptv';
-import { Globe, Radio, TrendingUp, Tv2 } from 'lucide-react';
+import { Globe, Radio, TrendingUp, Tv2, LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Index() {
-  const { channels, loading, countries } = useChannels();
+  const { channels, loading, countries, categories } = useChannels();
   const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const featuredChannels = useMemo(() => {
     return channels.slice(0, 6);
   }, [channels]);
 
   const filteredChannels = useMemo(() => {
-    if (selectedCountry === 'all') return channels.slice(0, 50);
-    return channels
-      .filter(c => c.country.includes(selectedCountry))
-      .slice(0, 50);
-  }, [channels, selectedCountry]);
+    let result = channels;
+    
+    if (selectedCountry !== 'all') {
+      result = result.filter(c => c.country.includes(selectedCountry));
+    }
+    
+    if (selectedCategory !== 'all') {
+      result = result.filter(c => c.category.includes(selectedCategory));
+    }
+    
+    return result.slice(0, 50);
+  }, [channels, selectedCountry, selectedCategory]);
 
   const popularCountries = useMemo(() => {
     return countries.slice(0, 10);
@@ -69,9 +80,23 @@ export default function Index() {
               </div>
               <p className="text-sm text-muted-foreground">Channels</p>
             </div>
+            <div className="w-px h-10 bg-border" />
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 text-2xl font-bold text-primary">
+                <LayoutGrid className="w-5 h-5" />
+                {categories.length}+
+              </div>
+              <p className="text-sm text-muted-foreground">Categories</p>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* Recently Watched */}
+      <RecentlyWatched onChannelClick={setSelectedChannel} />
+
+      {/* TV Guide */}
+      <TVGuide channels={channels} onChannelClick={setSelectedChannel} />
 
       {/* Featured Channels */}
       <section className="container px-4 mb-10">
@@ -89,6 +114,19 @@ export default function Index() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Category Filter */}
+      <section className="container px-4 mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <LayoutGrid className="w-5 h-5 text-primary" />
+          <h2 className="font-display text-xl font-semibold">Browse by Category</h2>
+        </div>
+        <CategoryFilter 
+          categories={categories} 
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
       </section>
 
       {/* Country Filter */}
@@ -141,7 +179,7 @@ export default function Index() {
 
         {filteredChannels.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No channels found for this country</p>
+            <p className="text-muted-foreground">No channels found for this selection</p>
           </div>
         )}
       </section>

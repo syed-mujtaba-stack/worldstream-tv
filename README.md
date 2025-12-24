@@ -1,73 +1,103 @@
-# Welcome to your Lovable project
+# WorldStream TV
 
-## Project info
+A modern TV streaming application built with React, TypeScript, and Vite, featuring a beautiful UI and seamless video playback experience.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 🚀 Features
 
-## How can I edit this code?
+- 🎬 High-quality video streaming with HLS support
+- 🔒 Secure authentication with Supabase
+- 📱 Responsive design for all devices
+- ⚡ Blazing fast performance with Vite
+- 🎨 Beautiful UI with shadcn/ui components
+- 🔍 Advanced search functionality
+- ❤️ Favorites system
+- 📊 User profiles and preferences
 
-There are several ways of editing your application.
+## 🛠️ Tech Stack
 
-**Use Lovable**
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, shadcn/ui
+- **State Management**: React Query, React Context
+- **Backend**: Supabase (Auth, Database, Storage)
+- **Video Playback**: HLS.js
+- **Routing**: React Router v6
+- **Form Handling**: React Hook Form
+- **Icons**: Lucide React
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 📦 Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js 16+ (LTS recommended)
+- npm or yarn
+- Supabase account (for backend services)
 
-**Use your preferred IDE**
+## 🚀 Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/syed-mujtaba-stack/worldstream-tv.git
+   cd worldstream-tv
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn
+   ```
 
-Follow these steps:
+3. **Set up environment variables**
+   Create a `.env` file in the root directory and add your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+4. **Start the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+5. **Build for production**
+   ```bash
+   npm run build
+   # or
+   yarn build
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 📂 Project Structure
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+src/
+├── components/    # Reusable UI components
+├── contexts/     # React contexts (Auth, etc.)
+├── hooks/        # Custom React hooks
+├── integrations/ # Third-party integrations
+├── lib/          # Utility functions and configs
+├── pages/        # Page components
+└── App.tsx       # Main application component
 ```
 
-**Edit a file directly in GitHub**
+## 🤝 Contributing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-**Use GitHub Codespaces**
+## 📄 License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## What technologies are used for this project?
+## 🙏 Acknowledgments
 
-This project is built with:
+- [shadcn/ui](https://ui.shadcn.com/) for the beautiful components
+- [Radix UI](https://www.radix-ui.com/) for accessible primitives
+- [Vite](https://vitejs.dev/) for the amazing developer experience
+- [Supabase](https://supabase.com/) for the backend services
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Made with ❤️ by Syed Mujtaba Abbas(https://github.com/syed-mujtaba-stack)

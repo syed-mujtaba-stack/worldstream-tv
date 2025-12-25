@@ -19,13 +19,107 @@ export interface ParsedChannel {
   tvgLanguage: string;
 }
 
-const PLAYLIST_URL = 'https://iptv-org.github.io/iptv/index.m3u';
+// Country-specific playlists for better quality streams
+const COUNTRY_PLAYLISTS: Record<string, string> = {
+  'PK': 'https://iptv-org.github.io/iptv/countries/pk.m3u',
+  'IN': 'https://iptv-org.github.io/iptv/countries/in.m3u',
+};
+
+// Category-specific playlists
+const CATEGORY_PLAYLISTS: Record<string, string> = {
+  'News': 'https://iptv-org.github.io/iptv/categories/news.m3u',
+  'Sports': 'https://iptv-org.github.io/iptv/categories/sports.m3u',
+  'Entertainment': 'https://iptv-org.github.io/iptv/categories/entertainment.m3u',
+  'Movies': 'https://iptv-org.github.io/iptv/categories/movies.m3u',
+  'Music': 'https://iptv-org.github.io/iptv/categories/music.m3u',
+  'Kids': 'https://iptv-org.github.io/iptv/categories/kids.m3u',
+  'Documentary': 'https://iptv-org.github.io/iptv/categories/documentary.m3u',
+  'Religious': 'https://iptv-org.github.io/iptv/categories/religious.m3u',
+};
+
+// Main playlist as fallback
+const MAIN_PLAYLIST_URL = 'https://iptv-org.github.io/iptv/index.m3u';
+
+async function fetchPlaylist(url: string): Promise<Channel[]> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return [];
+    const text = await response.text();
+    return parseM3U(text);
+  } catch (error) {
+    console.error(`Error fetching playlist ${url}:`, error);
+    return [];
+  }
+}
 
 export async function fetchChannels(): Promise<Channel[]> {
   try {
-    const response = await fetch(PLAYLIST_URL);
-    const text = await response.text();
-    return parseM3U(text);
+    // Fetch priority playlists (Pakistan & India) first
+    const priorityPromises = Object.entries(COUNTRY_PLAYLISTS).map(
+      async ([countryCode, url]) => {
+        const channels = await fetchPlaylist(url);
+        // Mark these channels with their country code
+        return channels.map(ch => ({
+          ...ch,
+          country: ch.country || countryCode,
+        }));
+      }
+    );
+
+    // Fetch category playlists
+    const categoryPromises = Object.entries(CATEGORY_PLAYLISTS).map(
+      async ([category, url]) => {
+        const channels = await fetchPlaylist(url);
+        return channels.map(ch => ({
+          ...ch,
+          category: ch.category || category,
+        }));
+      }
+    );
+
+    // Fetch main playlist as fallback
+    const mainPromise = fetchPlaylist(MAIN_PLAYLIST_URL);
+
+    // Wait for all playlists
+    const [priorityResults, categoryResults, mainChannels] = await Promise.all([
+      Promise.all(priorityPromises),
+      Promise.all(categoryPromises),
+      mainPromise,
+    ]);
+
+    // Combine all channels, removing duplicates by URL
+    const allChannels: Channel[] = [];
+    const seenUrls = new Set<string>();
+
+    // Add priority channels first (Pakistan/India)
+    for (const channels of priorityResults) {
+      for (const channel of channels) {
+        if (!seenUrls.has(channel.url)) {
+          seenUrls.add(channel.url);
+          allChannels.push(channel);
+        }
+      }
+    }
+
+    // Add category channels
+    for (const channels of categoryResults) {
+      for (const channel of channels) {
+        if (!seenUrls.has(channel.url)) {
+          seenUrls.add(channel.url);
+          allChannels.push(channel);
+        }
+      }
+    }
+
+    // Add main playlist channels
+    for (const channel of mainChannels) {
+      if (!seenUrls.has(channel.url)) {
+        seenUrls.add(channel.url);
+        allChannels.push(channel);
+      }
+    }
+
+    return allChannels;
   } catch (error) {
     console.error('Error fetching channels:', error);
     return [];
@@ -37,6 +131,7 @@ function parseM3U(content: string): Channel[] {
   const channels: Channel[] = [];
   
   let currentChannel: Partial<ParsedChannel> = {};
+  let channelIndex = 0;
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -45,7 +140,7 @@ function parseM3U(content: string): Channel[] {
       const info = parseExtInf(line);
       currentChannel = {
         ...info,
-        id: `channel-${channels.length}`,
+        id: `channel-${channelIndex++}-${Date.now()}`,
       };
     } else if (line && !line.startsWith('#') && currentChannel.id) {
       channels.push({
@@ -96,6 +191,9 @@ function parseExtInf(line: string): Partial<ParsedChannel> {
 
 export function getUniqueCountries(channels: Channel[]): string[] {
   const countries = new Set<string>();
+  // Prioritize Pakistan and India at the top
+  const priorityCountries = ['PK', 'IN'];
+  
   channels.forEach(channel => {
     if (channel.country && channel.country !== 'Unknown') {
       // Handle multiple countries separated by semicolon
@@ -104,7 +202,23 @@ export function getUniqueCountries(channels: Channel[]): string[] {
       });
     }
   });
-  return Array.from(countries).sort();
+  
+  const sortedCountries = Array.from(countries).sort();
+  
+  // Move priority countries to the top
+  const result: string[] = [];
+  for (const pc of priorityCountries) {
+    if (sortedCountries.includes(pc)) {
+      result.push(pc);
+    }
+  }
+  for (const c of sortedCountries) {
+    if (!priorityCountries.includes(c)) {
+      result.push(c);
+    }
+  }
+  
+  return result;
 }
 
 export function getUniqueCategories(channels: Channel[]): string[] {

@@ -143,15 +143,19 @@ function parseM3U(content: string): Channel[] {
         id: `channel-${channelIndex++}-${Date.now()}`,
       };
     } else if (line && !line.startsWith('#') && currentChannel.id) {
-      channels.push({
-        id: currentChannel.id,
-        name: currentChannel.name || 'Unknown',
-        logo: currentChannel.logo || '',
-        url: line,
-        country: currentChannel.tvgCountry || 'Unknown',
-        category: currentChannel.group || 'General',
-        languages: currentChannel.tvgLanguage ? [currentChannel.tvgLanguage] : [],
-      });
+      // Only include HTTPS streams to avoid mixed content errors
+      // Browsers block HTTP content on HTTPS pages
+      if (line.startsWith('https://')) {
+        channels.push({
+          id: currentChannel.id,
+          name: currentChannel.name || 'Unknown',
+          logo: currentChannel.logo || '',
+          url: line,
+          country: currentChannel.tvgCountry || 'Unknown',
+          category: currentChannel.group || 'General',
+          languages: currentChannel.tvgLanguage ? [currentChannel.tvgLanguage] : [],
+        });
+      }
       currentChannel = {};
     }
   }
